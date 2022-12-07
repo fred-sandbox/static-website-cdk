@@ -1,16 +1,21 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import {aws_s3_deployment, Stack, StackProps} from 'aws-cdk-lib';
+import {Construct} from 'constructs';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
 export class HomepageCdkStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+    constructor(scope: Construct, id: string, props?: StackProps) {
+        super(scope, id, props);
 
-    // The code that defines your stack goes here
+        const webSiteBucket = new s3.Bucket(this, 'WebsiteBucket', {
+            bucketName: 'homepage-cdk-bucket',
+            publicReadAccess: true,
+            websiteIndexDocument: 'index.html'
+        });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'HomepageCdkQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
-  }
+        new s3deploy.BucketDeployment(this, 'BucketDeployment', {
+            sources: [s3deploy.Source.asset('./website/')],
+            destinationBucket: webSiteBucket
+        })
+    }
 }
